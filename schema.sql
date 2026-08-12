@@ -1,0 +1,97 @@
+-- 1. Themes table
+CREATE TABLE IF NOT EXISTS `themes` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `activeTheme` VARCHAR(255) DEFAULT 'theme1',
+    `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+
+-- 2. Galleries table
+CREATE TABLE IF NOT EXISTS `galleries` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `title` VARCHAR(255) NOT NULL,
+    `description` TEXT NOT NULL,
+    `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+
+-- 3. Gallery Images table (Relational table for nested image schema)
+CREATE TABLE IF NOT EXISTS `gallery_images` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `galleryId` INT NOT NULL,
+    `image` VARCHAR(512) NOT NULL,
+    `imageTitle` VARCHAR(255) DEFAULT '',
+    FOREIGN KEY (`galleryId`) REFERENCES `galleries` (`id`) ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+
+-- 4. Events table
+CREATE TABLE IF NOT EXISTS `events` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `title` VARCHAR(255) NOT NULL,
+    `description` TEXT NOT NULL,
+    `location` VARCHAR(255) NOT NULL,
+    `eventDate` DATE NOT NULL,
+    `image` VARCHAR(512) DEFAULT '',
+    `status` ENUM('Upcoming', 'Completed') DEFAULT 'Upcoming',
+    `galleryId` INT DEFAULT NULL,
+    `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`galleryId`) REFERENCES `galleries` (`id`) ON DELETE SET NULL
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+
+
+-- 5. Event Chips table (Relational table for chips array)
+CREATE TABLE IF NOT EXISTS `event_chips` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `eventId` INT NOT NULL,
+    `chip` VARCHAR(255) NOT NULL,
+    FOREIGN KEY (`eventId`) REFERENCES `events` (`id`) ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+
+-- 6. Documents table
+CREATE TABLE IF NOT EXISTS `documents` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `type` ENUM('policy', 'regional') NOT NULL,
+    `title` VARCHAR(255) NOT NULL,
+    `pdf` VARCHAR(512) NOT NULL,
+    `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+
+-- 7. Contacts table
+CREATE TABLE contacts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- 8. Admin Users table (Microsoft SSO login)
+CREATE TABLE IF NOT EXISTS `admin_users` (
+
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(255) NOT NULL,
+    `email` VARCHAR(255) NOT NULL UNIQUE,
+    `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+    `microsoft_oid` VARCHAR(255) DEFAULT NULL,
+    `tenant_id` VARCHAR(255) DEFAULT NULL,
+    `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+
+ALTER TABLE regional_branches
+ADD COLUMN number VARCHAR(50) NULL AFTER name,
+ADD COLUMN email VARCHAR(255) NULL AFTER number;
+
+ALTER TABLE regional_branches
+DROP COLUMN description;
+
+ALTER TABLE branch_heading
+ADD COLUMN number VARCHAR(50) NULL AFTER heading,
+ADD COLUMN email VARCHAR(255) NULL AFTER number;
+
+ALTER TABLE branch_heading
+DROP COLUMN description;
