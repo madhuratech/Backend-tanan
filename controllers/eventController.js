@@ -2,6 +2,9 @@ import pool, { query } from "../config/db.js";
 import fs from "fs";
 import path from "path";
 
+
+const BACKEND_URL = process.env.BACKEND_URL;
+
 // Helper function to map events with chips and gallery data
 async function mapEventsWithChipsAndGallery(dbEvents) {
   if (dbEvents.length === 0) return [];
@@ -51,7 +54,11 @@ async function mapEventsWithChipsAndGallery(dbEvents) {
       description: e.description,
       location: e.location,
       eventDate: e.eventDate,
-      image: e.image,
+      image: e.image
+        ? e.image.startsWith("http")
+          ? e.image
+          : `${BACKEND_URL}${e.image}`
+        : "",
       chips: eventChips,
       status: e.status,
       gallery: galleryObj,
