@@ -2,7 +2,11 @@ import pool from "../config/db.js";
 
 const seedSocialLinks = async () => {
     const conn = await pool.getConnection();
+    const [dbInfo] = await conn.execute(`
+  SELECT DATABASE() AS databaseName
+`);
 
+    console.log("Seeder database:", dbInfo);
     try {
         await conn.beginTransaction();
 
