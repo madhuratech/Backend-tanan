@@ -2,9 +2,6 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import dns from "node:dns/promises";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 
 import pool from "./config/db.js";
 
@@ -17,19 +14,12 @@ import faqRoutes from "./routes/faqRoutes.js";
 import branchRoutes from "./routes/branchRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 
+
 // ========================================
 // Environment
 // ========================================
 
 dotenv.config();
-
-
-// ========================================
-// File Path
-// ========================================
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 
 // ========================================
@@ -74,12 +64,12 @@ const corsOptions = {
 
         console.log("Incoming Origin:", origin);
 
-        // Allow requests without origin
+        // Allow requests without origin (Postman, Mobile Apps)
         if (!origin) {
             return callback(null, true);
         }
 
-        // Allow localhost
+        // Allow any localhost
         if (
             origin.startsWith("http://localhost:") ||
             origin.startsWith("http://127.0.0.1:")
@@ -87,7 +77,7 @@ const corsOptions = {
             return callback(null, true);
         }
 
-        // Allow Vercel deployments
+        // Allow any Vercel deployment
         if (origin.endsWith(".vercel.app")) {
             return callback(null, true);
         }
@@ -99,9 +89,7 @@ const corsOptions = {
 
         console.log("Blocked Origin:", origin);
 
-        return callback(
-            new Error(`Origin ${origin} is not allowed by CORS`)
-        );
+        return callback(new Error(`Origin ${origin} is not allowed by CORS`));
     },
 
     credentials: true,
@@ -146,9 +134,7 @@ app.use(
 
 app.use(
     "/uploads",
-    express.static(
-        path.join(__dirname, "uploads")
-    )
+    express.static("uploads")
 );
 
 
@@ -191,26 +177,6 @@ app.get("/tanan-debug", (req, res) => {
 
 
 // ========================================
-// Temporary Upload Debug
-// ========================================
-
-app.get("/debug/uploads", (req, res) => {
-
-    const imagePath = path.join(
-        __dirname,
-        "uploads",
-        "events",
-        "1786546045572.webp"
-    );
-
-    res.json({
-        imagePath,
-        exists: fs.existsSync(imagePath),
-    });
-});
-
-
-// ========================================
 // 404
 // ========================================
 
@@ -234,6 +200,7 @@ app.use((err, req, res, next) => {
         success: false,
         message: err.message || "Internal Server Error",
     });
+
 });
 
 
@@ -249,9 +216,7 @@ const startServer = async () => {
 
         await pool.query("SELECT 1");
 
-        console.log(
-            "✅ MySQL Database Connected Successfully"
-        );
+        console.log("✅ MySQL Database Connected Successfully");
 
     } catch (error) {
 
@@ -264,9 +229,7 @@ const startServer = async () => {
 
     app.listen(PORT, () => {
 
-        console.log(
-            `🚀 Server running on port ${PORT}`
-        );
+        console.log(`🚀 Server running on port ${PORT}`);
 
     });
 
