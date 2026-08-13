@@ -5,6 +5,20 @@ import path from "path";
 
 const BACKEND_URL = process.env.BACKEND_URL;
 
+function parseSocialLinks(value) {
+  if (!value) return [];
+
+  if (typeof value === "string") {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return [];
+    }
+  }
+
+  return value;
+}
+
 // Helper function to map events with chips and gallery data
 async function mapEventsWithChipsAndGallery(dbEvents) {
   if (dbEvents.length === 0) return [];
@@ -62,6 +76,7 @@ async function mapEventsWithChipsAndGallery(dbEvents) {
       chips: eventChips,
       status: e.status,
       gallery: galleryObj,
+      socialLinks: parseSocialLinks(e.socialLinks),
       createdAt: e.createdAt,
       updatedAt: e.updatedAt,
     };
@@ -82,6 +97,8 @@ export const getEventById = async (req, res) => {
         message: "Event not found",
       });
     }
+
+   
 
     const mapped = await mapEventsWithChipsAndGallery(dbEvents);
 
@@ -124,6 +141,7 @@ export const createEvent = async (req, res) => {
       : "";
 
     const chips = JSON.parse(req.body.chips || "[]");
+    const socialLinks = JSON.parse(req.body.socialLinks || "[]");
     const status = req.body.status || "Upcoming";
 
     const galleryId =
@@ -146,9 +164,10 @@ export const createEvent = async (req, res) => {
           eventDate,
           image,
           status,
-          galleryId
+          galleryId,
+          socialLinks
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           req.body.title,
           req.body.description,
@@ -157,6 +176,7 @@ export const createEvent = async (req, res) => {
           image,
           status,
           galleryId,
+          JSON.stringify(socialLinks),
         ]
       );
 
@@ -241,7 +261,7 @@ export const updateEvent = async (req, res) => {
 
     const chips = JSON.parse(req.body.chips || "[]");
     const status = req.body.status || "Upcoming";
-
+    const socialLinks = JSON.parse(req.body.socialLinks || "[]");
     const galleryId =
       status === "Completed" && req.body.gallery
         ? parseInt(req.body.gallery, 10)
@@ -261,7 +281,8 @@ export const updateEvent = async (req, res) => {
             eventDate = ?,
             image = ?,
             status = ?,
-            galleryId = ?
+            galleryId = ?,
+              socialLinks = ?
          WHERE id = ?`,
         [
           title,
@@ -271,6 +292,7 @@ export const updateEvent = async (req, res) => {
           image,
           status,
           galleryId,
+          JSON.stringify(socialLinks),
           eventId,
         ]
       );

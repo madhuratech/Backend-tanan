@@ -95,3 +95,8 @@ ADD COLUMN email VARCHAR(255) NULL AFTER number;
 
 ALTER TABLE branch_heading
 DROP COLUMN description;
+
+ALTER TABLE events
+ADD COLUMN socialLinks JSON NULL;
+
+DESCRIBE events;
