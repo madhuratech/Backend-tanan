@@ -2,6 +2,17 @@ import fs from "fs";
 import path from "path";
 import pool, { query } from "../config/db.js";
 
+const BACKEND_URL = process.env.BACKEND_URL;
+
+const getImageUrl = (image) => {
+    if (!image) return "";
+
+    if (image.startsWith("http")) {
+        return image;
+    }
+
+    return `${BACKEND_URL}${image}`;
+};
 // Create Gallery
 export const createGallery = async (req, res) => {
     try {
@@ -56,7 +67,7 @@ export const createGallery = async (req, res) => {
             images: dbImgs.map((img) => ({
                 _id: img.id.toString(),
                 id: img.id,
-                image: img.image,
+                image: getImageUrl(img.image),
                 imageTitle: img.imageTitle,
             })),
         };
@@ -89,7 +100,7 @@ export const getGalleries = async (req, res) => {
                 .map((img) => ({
                     _id: img.id.toString(),
                     id: img.id,
-                    image: img.image,
+                    image: getImageUrl(img.image),
                     imageTitle: img.imageTitle,
                 }));
             return {
@@ -145,7 +156,7 @@ export const getGallery = async (req, res) => {
             images: dbImgs.map((img) => ({
                 _id: img.id.toString(),
                 id: img.id,
-                image: img.image,
+                image: getImageUrl(img.image),
                 imageTitle: img.imageTitle,
             })),
             createdAt: g.createdAt,
@@ -221,7 +232,9 @@ export const updateGallery = async (req, res) => {
 
         const updatedExistingImages = existingImages.map(
             (img, index) => ({
-                image: img.image,
+                image: img.image.startsWith("http")
+                    ? new URL(img.image).pathname
+                    : img.image,
                 imageTitle: imageTitles[index] || "",
             })
         );
@@ -281,7 +294,7 @@ export const updateGallery = async (req, res) => {
             images: newDbImgs.map((img) => ({
                 _id: img.id.toString(),
                 id: img.id,
-                image: img.image,
+                image: getImageUrl(img.image),
                 imageTitle: img.imageTitle,
             })),
             createdAt: g.createdAt,
