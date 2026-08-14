@@ -177,3 +177,112 @@ export const deleteMembershipBenefit = async (req, res) => {
     });
   }
 };
+
+
+// UPDATE
+export const updateMembershipBenefit = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description } = req.body;
+
+    if (!title?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Title is required",
+      });
+    }
+
+    if (!description?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Description is required",
+      });
+    }
+
+    // Get existing record
+    const [existingRows] = await pool.execute(
+      `
+      SELECT *
+      FROM membership_benefits
+      WHERE id = ?
+      `,
+      [id]
+    );
+
+    if (existingRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Membership benefit not found",
+      });
+    }
+
+    const existingBenefit = existingRows[0];
+
+    let pdfPath = existingBenefit.pdf;
+
+    // If a new PDF was uploaded, replace the old PDF
+    if (req.file) {
+      pdfPath = `/uploads/documents/${req.file.filename}`;
+    }
+
+    const [result] = await pool.execute(
+      `
+      UPDATE membership_benefits
+      SET
+        title = ?,
+        description = ?,
+        pdf = ?
+      WHERE id = ?
+      `,
+      [
+        title.trim(),
+        description.trim(),
+        pdfPath,
+        id,
+      ]
+    );
+
+    // Delete old PDF only after database update succeeds
+    if (req.file && existingBenefit.pdf) {
+      const oldPdfPath = path.join(
+        process.cwd(),
+        existingBenefit.pdf.replace(/^\/+/, "")
+      );
+
+      if (
+        fs.existsSync(oldPdfPath) &&
+        oldPdfPath !== path.join(
+          process.cwd(),
+          pdfPath.replace(/^\/+/, "")
+        )
+      ) {
+        fs.unlinkSync(oldPdfPath);
+      }
+    }
+
+    const [updatedRows] = await pool.execute(
+      `
+      SELECT *
+      FROM membership_benefits
+      WHERE id = ?
+      `,
+      [id]
+    );
+
+    res.json({
+      success: true,
+      message: "Membership benefit updated successfully",
+      data: updatedRows[0],
+    });
+  } catch (error) {
+    console.error(
+      "Update membership benefit error:",
+      error
+    );
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to update membership benefit",
+    });
+  }
+};
