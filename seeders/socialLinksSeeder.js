@@ -29,8 +29,28 @@ const seedSocialLinks = async () => {
         // =====================================================
         await conn.beginTransaction();
 
+
         // =====================================================
-        // 4. Check whether socialLinks column exists
+        // 4. Create membership_benefits table if it does not exist
+        // =====================================================
+        await conn.execute(`
+    CREATE TABLE IF NOT EXISTS membership_benefits (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT NOT NULL,
+        pdf VARCHAR(500) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ON UPDATE CURRENT_TIMESTAMP
+    )
+`);
+
+        console.log(
+            "\n✅ membership_benefits table is ready."
+        );
+
+        // =====================================================
+        // 5. Check whether socialLinks column exists
         // =====================================================
         const [columnCheck] = await conn.execute(`
             SELECT

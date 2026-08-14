@@ -16,6 +16,7 @@ import documentRoutes from "./routes/documentRoutes.js";
 import faqRoutes from "./routes/faqRoutes.js";
 import branchRoutes from "./routes/branchRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
+import membershipBenefitRoutes from "./routes/membershipBenefitRoutes.js";
 
 // ========================================
 // Environment
@@ -164,6 +165,7 @@ app.use("/api/documents", documentRoutes);
 app.use("/api/faqs", faqRoutes);
 app.use("/api/branches", branchRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use( "/api/membership-benefits",membershipBenefitRoutes);
 
 
 // ========================================

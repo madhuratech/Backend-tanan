@@ -100,3 +100,9 @@ ALTER TABLE events
 ADD COLUMN socialLinks JSON NULL;
 
 DESCRIBE events;
+
+DESCRIBE galleries;
+
+SELECT * FROM gallery_images;
+
+SELECT * FROM events;
