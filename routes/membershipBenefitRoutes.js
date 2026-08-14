@@ -7,7 +7,7 @@ import {
   deleteMembershipBenefit,
 } from "../controllers/membershipBenefitController.js";
 
-import DocumentUpload from "../middleware/DocumentUpload.js";
+import DocumentUpload from "../middleware/documentUpload.js";
 
 const router = express.Router();
 
