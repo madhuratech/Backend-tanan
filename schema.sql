@@ -106,3 +106,11 @@ DESCRIBE galleries;
 SELECT * FROM gallery_images;
 
 SELECT * FROM events;
+
+DESCRIBE gallery_images;
+
+SELECT * FROM branch_heading;
+
+DESCRIBE branch_heading;
+
+select * from regional_branches;

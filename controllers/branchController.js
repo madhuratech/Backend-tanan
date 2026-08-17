@@ -7,6 +7,7 @@ const formatBranch = (row) => ({
   name: row.name,
   number: row.number,
   email: row.email,
+  link: row.link || null,
   documentCount: Number(row.documentCount || 0),
   faqCount: Number(row.faqCount || 0),
   createdAt: row.createdAt,
@@ -22,6 +23,7 @@ export const getBranches = async (req, res) => {
           b.name,
           b.number,
           b.email,
+          b.link,
           b.created_at AS createdAt,
           b.updated_at AS updatedAt,
           (
@@ -73,6 +75,7 @@ export const getBranch = async (req, res) => {
           b.name,
           b.number,
           b.email,
+          b.link,
           b.created_at AS createdAt,
           b.updated_at AS updatedAt,
           (
@@ -116,11 +119,12 @@ export const getBranch = async (req, res) => {
 
 export const createBranch = async (req, res) => {
   try {
-    const { name, number, email } = req.body;
+    const { name, number, email, link } = req.body;
 
     const trimmedName = name?.trim();
     const trimmedNumber = number?.trim();
     const trimmedEmail = email?.trim();
+    const trimmedLink = link?.trim() || null;
 
     if (!trimmedName) {
       return res.status(400).json({
@@ -148,14 +152,16 @@ export const createBranch = async (req, res) => {
         INSERT INTO regional_branches (
           name,
           number,
-          email
+          email,
+          link
         )
-        VALUES (?, ?, ?)
+        VALUES (?, ?, ?, ?)
       `,
       [
         trimmedName,
         trimmedNumber,
         trimmedEmail,
+        trimmedLink,
       ]
     );
 
@@ -166,6 +172,7 @@ export const createBranch = async (req, res) => {
           name,
           number,
           email,
+          link,
           created_at AS createdAt,
           updated_at AS updatedAt
         FROM regional_branches
@@ -196,7 +203,7 @@ export const createBranch = async (req, res) => {
 export const updateBranch = async (req, res) => {
   try {
     const branchId = Number(req.params.id);
-    const { name, number, email } = req.body;
+    const { name, number, email, link } = req.body;
 
     if (!Number.isInteger(branchId) || branchId <= 0) {
       return res.status(400).json({
@@ -208,6 +215,7 @@ export const updateBranch = async (req, res) => {
     const trimmedName = name?.trim();
     const trimmedNumber = number?.trim();
     const trimmedEmail = email?.trim();
+    const trimmedLink = link?.trim() || null;
 
     if (!trimmedName) {
       return res.status(400).json({
@@ -252,13 +260,15 @@ export const updateBranch = async (req, res) => {
         SET
           name = ?,
           number = ?,
-          email = ?
+          email = ?,
+          link = ?
         WHERE id = ?
       `,
       [
         trimmedName,
         trimmedNumber,
         trimmedEmail,
+        trimmedLink,
         branchId,
       ]
     );
@@ -270,6 +280,7 @@ export const updateBranch = async (req, res) => {
           b.name,
           b.number,
           b.email,
+          b.link,
           b.created_at AS createdAt,
           b.updated_at AS updatedAt,
           (
