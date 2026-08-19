@@ -14,7 +14,12 @@ if (!fs.existsSync(uploadDir)) {
 // Store files in memory first
 const storage = multer.memoryStorage();
 
-const upload = multer({ storage });
+const upload = multer({
+    storage,
+    limits: {
+        files: 10,
+    },
+});
 
 // Compress all uploaded gallery images to WebP
 export const compressGalleryImages = async (req, res, next) => {
