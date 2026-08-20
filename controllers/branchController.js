@@ -398,6 +398,7 @@ export const getBranchHeading = async (req, res) => {
         heading,
         number,
         email,
+        link,
         created_at AS createdAt,
         updated_at AS updatedAt
       FROM branch_heading
@@ -424,11 +425,12 @@ export const getBranchHeading = async (req, res) => {
 
 export const createBranchHeading = async (req, res) => {
   try {
-    const { heading, number, email } = req.body;
+    const { heading, number, email, link } = req.body;
 
     const trimmedHeading = heading?.trim();
     const trimmedNumber = number?.trim();
     const trimmedEmail = email?.trim();
+    const trimmedLink = link?.trim() || null;
 
     if (!trimmedHeading) {
       return res.status(400).json({
@@ -470,14 +472,16 @@ export const createBranchHeading = async (req, res) => {
         INSERT INTO branch_heading (
           heading,
           number,
-          email
+          email,
+          link
         )
-        VALUES (?, ?, ?)
+        VALUES (?, ?, ?, ?)
       `,
       [
         trimmedHeading,
         trimmedNumber,
         trimmedEmail,
+        trimmedLink,
       ]
     );
 
@@ -488,6 +492,7 @@ export const createBranchHeading = async (req, res) => {
           heading,
           number,
           email,
+          link,
           created_at AS createdAt,
           updated_at AS updatedAt
         FROM branch_heading
@@ -509,16 +514,13 @@ export const createBranchHeading = async (req, res) => {
       message: error.message,
     });
   }
-};
-
-
-/* UPDATE SECTION CONTENT */
+};;
 
 export const updateBranchHeading = async (req, res) => {
   try {
     const headingId = Number(req.params.id);
 
-    const { heading, number, email } = req.body;
+    const { heading, number, email, link } = req.body;
 
     if (!Number.isInteger(headingId) || headingId <= 0) {
       return res.status(400).json({
@@ -530,6 +532,7 @@ export const updateBranchHeading = async (req, res) => {
     const trimmedHeading = heading?.trim();
     const trimmedNumber = number?.trim();
     const trimmedEmail = email?.trim();
+    const trimmedLink = link?.trim() || null;
 
     if (!trimmedHeading) {
       return res.status(400).json({
@@ -574,13 +577,15 @@ export const updateBranchHeading = async (req, res) => {
         SET
           heading = ?,
           number = ?,
-          email = ?
+          email = ?,
+          link = ?
         WHERE id = ?
       `,
       [
         trimmedHeading,
         trimmedNumber,
         trimmedEmail,
+        trimmedLink,
         headingId,
       ]
     );
@@ -592,6 +597,7 @@ export const updateBranchHeading = async (req, res) => {
           heading,
           number,
           email,
+          link,
           created_at AS createdAt,
           updated_at AS updatedAt
         FROM branch_heading
@@ -614,7 +620,6 @@ export const updateBranchHeading = async (req, res) => {
     });
   }
 };
-
 
 /* DELETE SECTION CONTENT */
 
