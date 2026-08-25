@@ -58,67 +58,7 @@ const seedSocialLinks = async () => {
             WHERE TABLE_SCHEMA = DATABASE()
               AND TABLE_NAME = 'gallery_images'
         `);
-// =====================================================
-// Check whether link column exists in branch_heading
-// =====================================================
-const [linkColumnCheck] = await conn.execute(`
-  SELECT
-    COLUMN_NAME,
-    DATA_TYPE,
-    IS_NULLABLE
-  FROM INFORMATION_SCHEMA.COLUMNS
-  WHERE TABLE_SCHEMA = DATABASE()
-    AND TABLE_NAME = 'branch_heading'
-    AND COLUMN_NAME = 'link'
-`);
 
-console.log("\n========== BRANCH HEADING LINK COLUMN ==========");
-console.table(linkColumnCheck);
-
-if (linkColumnCheck.length === 0) {
-  console.log("⚠️ link column does not exist. Creating...");
-
-  await conn.execute(`
-    ALTER TABLE branch_heading
-    ADD COLUMN link VARCHAR(500) NULL AFTER email
-  `);
-
-  console.log("✅ link column created successfully.");
-} else {
-  console.log("✅ link column already exists.");
-}
-
-// =====================================================
-// Check existing branch heading data
-// =====================================================
-const [branchHeadingData] = await conn.execute(`
-  SELECT id, heading, number, email, link
-  FROM branch_heading
-  LIMIT 1
-`);
-
-console.log("\n========== BRANCH HEADING DATA ==========");
-console.table(branchHeadingData);
-
-if (branchHeadingData.length === 0) {
-  console.log("⚠️ No data found. Inserting default record...");
-
-  await conn.execute(
-    `INSERT INTO branch_heading
-     (heading, number, email, link)
-     VALUES (?, ?, ?, ?)`,
-    [
-      "Tamil Nadu Forening i Norge",
-      "org nr: 930075442",
-      "board@tanan.no",
-      "https://tanan.no",
-    ]
-  );
-
-  console.log("✅ Branch heading inserted.");
-} else {
-  console.log("✅ Branch heading data already exists.");
-}
         console.log(
             "\n========== GALLERY IMAGES TABLE =========="
         );
@@ -133,80 +73,7 @@ if (branchHeadingData.length === 0) {
         console.log(
             "✅ gallery_images table exists."
         );
-// =====================================================
-// Create branch_heading table if it does not exist
-// =====================================================
-await conn.execute(`
-  CREATE TABLE IF NOT EXISTS branch_heading (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    heading VARCHAR(255) NOT NULL,
-    number VARCHAR(50),
-    email VARCHAR(255),
-    link VARCHAR(500),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      ON UPDATE CURRENT_TIMESTAMP
-  )
-`);
 
-console.log("✅ branch_heading table is ready.");
-
-// =====================================================
-// Check whether link column exists
-// =====================================================
-const [linkColumn] = await conn.execute(`
-  SELECT COLUMN_NAME
-  FROM INFORMATION_SCHEMA.COLUMNS
-  WHERE TABLE_SCHEMA = DATABASE()
-    AND TABLE_NAME = 'branch_heading'
-    AND COLUMN_NAME = 'link'
-`);
-
-if (linkColumn.length === 0) {
-  await conn.execute(`
-    ALTER TABLE branch_heading
-    ADD COLUMN link VARCHAR(500) NULL AFTER email
-  `);
-
-  console.log("✅ link column created successfully.");
-} else {
-  console.log("✅ link column already exists.");
-}
-
-// =====================================================
-// Seed / Update branch heading
-// =====================================================
-const [heading] = await conn.execute(`
-  SELECT id FROM branch_heading LIMIT 1
-`);
-
-if (heading.length === 0) {
-  await conn.execute(
-    `INSERT INTO branch_heading
-     (heading, number, email, link)
-     VALUES (?, ?, ?, ?)`,
-    [
-      "Tamil Nadu Forening i Norge",
-      "org nr: 930075442",
-      "board@tanan.no",
-      "https://tanan.no"
-    ]
-  );
-
-  console.log("✅ Branch heading inserted.");
-} else {
-  await conn.execute(
-    `UPDATE branch_heading
-     SET link = ?
-     WHERE id = ?`,
-    [
-      "https://tanan.no",
-      heading[0].id
-    ]
-  );
-
-  console.log("✅ Branch heading updated.");
-}
         // =====================================================
         // 6. Check whether position column exists
         // =====================================================
@@ -367,7 +234,15 @@ if (heading.length === 0) {
         console.table(
             galleryImages
         );
+        // =====================================================
+        // Show branch_heading table data
+        // =====================================================
+        const [branchHeading] = await conn.execute(`
+  SELECT * FROM branch_heading
+`);
 
+        console.log("\n========== BRANCH HEADING DATA ==========");
+        console.table(branchHeading);
         // =====================================================
         // 11. Check whether socialLinks column exists
         // =====================================================
@@ -502,6 +377,14 @@ if (heading.length === 0) {
                 url: "https://tanan.no",
             },
             {
+                platform: "newsMedia",
+                url: "https://tanan.no/news-media",
+            },
+            {
+                platform: "resource",
+                url: "https://tanan.no/resources",
+            },
+            {
                 platform: "other",
                 url: "https://example.com",
             },
@@ -601,7 +484,7 @@ if (heading.length === 0) {
                             savedLinks
                         );
                 } catch (
-                    error
+                error
                 ) {
                     console.error(
                         "❌ Unable to parse saved socialLinks JSON."
@@ -639,7 +522,7 @@ if (heading.length === 0) {
         );
 
     } catch (
-        error
+    error
     ) {
         // =====================================================
         // Rollback transaction
@@ -648,7 +531,7 @@ if (heading.length === 0) {
             try {
                 await conn.rollback();
             } catch (
-                rollbackError
+            rollbackError
             ) {
                 console.error(
                     "Rollback failed:",
