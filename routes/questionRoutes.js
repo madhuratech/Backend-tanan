@@ -4,15 +4,17 @@ import {
   createQuestion,
   updateQuestion,
   deleteQuestion,
-   reorderQuestions,
+  reorderQuestions,
 } from "../controllers/questionController.js";
 
 const router = express.Router();
 
 router.get("/", getQuestions);
 router.post("/", createQuestion);
+
+router.put("/reorder", reorderQuestions); // ← move this above /:id
+
 router.put("/:id", updateQuestion);
 router.delete("/:id", deleteQuestion);
-router.put("/reorder", reorderQuestions);
 
 export default router;
