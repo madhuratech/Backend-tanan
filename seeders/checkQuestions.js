@@ -11,47 +11,38 @@ const connection = await mysql.createConnection({
 });
 
 try {
-  console.log("🌱 Seeding questions...");
+  console.log("🌱 Updating questions table...");
 
-  const questions = [
-    {
-      title: "How do I become a TANAN member?",
-      description:
-        "Complete the online membership application and submit the required documents.",
-      url: "https://tanan.no/membership",
-    },
-    {
-      title: "Where can I register for events?",
-      description:
-        "All upcoming events are available on the Events page of the TANAN website.",
-      url: "https://tanan.no/events",
-    },
-    {
-      title: "How do I contact TANAN?",
-      description:
-        "Visit the Contact page to reach the TANAN head office.",
-      url: "https://tanan.no/contact",
-    },
-  ];
+  // Add position column if it doesn't exist
+  await connection.execute(`
+    ALTER TABLE questions
+    ADD COLUMN IF NOT EXISTS position INT NOT NULL DEFAULT 0
+  `);
 
-  for (const q of questions) {
+  // Update existing records with position values
+  const [rows] = await connection.query(`
+    SELECT id
+    FROM questions
+    ORDER BY created_at ASC
+  `);
+
+  for (let i = 0; i < rows.length; i++) {
     await connection.execute(
-      `INSERT INTO questions
-      (title, description, url, scope, branch_id)
-      VALUES (?, ?, ?, 'organization', NULL)`,
-      [q.title, q.description, q.url]
+      `UPDATE questions SET position = ? WHERE id = ?`,
+      [i, rows[i].id]
     );
   }
 
-  console.log("✅ Questions inserted successfully!\n");
+  console.log("✅ Position column updated successfully!\n");
 
-  const [rows] = await connection.query(
-    `SELECT id, title, description, url
-     FROM questions
-     ORDER BY id DESC`
-  );
+  const [result] = await connection.query(`
+    SELECT id, title, position
+    FROM questions
+    ORDER BY position ASC
+  `);
 
-  console.table(rows);
+  console.table(result);
+
 } catch (err) {
   console.error("❌ Seeder Error:", err);
 } finally {
