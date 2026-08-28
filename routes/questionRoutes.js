@@ -11,9 +11,7 @@ const router = express.Router();
 
 router.get("/", getQuestions);
 router.post("/", createQuestion);
-
-router.put("/reorder", reorderQuestions); // ← move this above /:id
-
+router.put("/reorder", reorderQuestions); 
 router.put("/:id", updateQuestion);
 router.delete("/:id", deleteQuestion);
 

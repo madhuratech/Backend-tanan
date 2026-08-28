@@ -18,7 +18,7 @@ export const getQuestions = async (req, res) => {
       params.push(branchId);
     }
 
-    query += " ORDER BY created_at DESC";
+   query += " ORDER BY position ASC";
 
     const [rows] = await pool.execute(query, params);
 
