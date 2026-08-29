@@ -4,7 +4,7 @@ const DEFAULT_THEME = "theme1";
 const DEFAULT_ANIMATION = "autumn";
 
 const allowedAnimations = {
-    theme1: ["autumn", "spring"],
+    theme1: ["autumn", "spring", "summer"],
     theme2: ["winter"],
 };
 
