@@ -18,6 +18,7 @@ import branchRoutes from "./routes/branchRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import membershipBenefitRoutes from "./routes/membershipBenefitRoutes.js";
 import questionRoutes from "./routes/questionRoutes.js";
+import otherResourcesRoutes from "./routes/otherResourcesRoutes.js";
 
 // ========================================
 // Environment
@@ -168,6 +169,9 @@ app.use("/api/branches", branchRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use( "/api/membership-benefits",membershipBenefitRoutes);
 app.use("/api/questions", questionRoutes);
+app.use("/api/other-resources", otherResourcesRoutes);
+
+
 
 // ========================================
 // Health Check
@@ -216,7 +220,10 @@ app.get("/debug/uploads", (req, res) => {
 // ========================================
 // 404
 // ========================================
-
+app.use((req, res, next) => {
+  console.log("PATH:", req.path);
+  next();
+});
 app.use((req, res) => {
     res.status(404).json({
         success: false,
